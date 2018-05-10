@@ -1,0 +1,15 @@
+{
+  "name": "raspberrypi-controls",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/branneman/dungeons-and-tables.git"
+  },
+  "author": "Bran van der Meer <bran.van.der.meer@protonmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "rpio": "^0.9.21"
+  }
+}
