@@ -1,0 +1,16 @@
+{
+  "name": "generate-map-tiles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/branneman/dungeons-and-tables.git"
+  },
+  "author": "Bran van der Meer <bran.van.der.meer@protonmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "gm": "^1.23.1",
+    "shelljs": "^0.8.2"
+  }
+}
