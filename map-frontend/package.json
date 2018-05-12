@@ -1,0 +1,57 @@
+{
+  "name": "dungeons-and-tables",
+  "version": "1.0.0",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/branneman/dungeons-and-tables.git"
+  },
+  "scripts": {
+    "start": "npm-run-all --parallel --print-label build:serve build:serve-tiles build:watch",
+    "build:dev": "npm run build:clean && npm run build:mkdirs && npm run build:html && npm run build:css && npm run build:js:dev && echo \"Done.\"",
+    "build:prod": "npm run build:clean && npm run build:mkdirs && npm run build:html && npm run build:css && npm run build:js:prod && npm run build:uglify && echo \"Done.\"",
+    "build:clean": "shx rm -rf dist",
+    "build:mkdirs": "shx mkdir -p dist/static/js dist/static/css",
+    "build:html": "shx cp src/index.html dist/index.html",
+    "build:css": "postcss src/static/css/app.css -u postcss-import -u postcss-cssnext -u postcss-csso -o dist/static/css/app.min.css",
+    "build:js:dev": "browserify src/static/js/app.js -d -t babelify | exorcist dist/static/js/app.js.map > dist/static/js/app.js",
+    "build:js:prod": "browserify src/static/js/app.js -t babelify --output dist/static/js/app.js",
+    "build:uglify": "uglifyjs dist/static/js/app.js --output dist/static/js/app.min.js --screw-ie8 --compress --mangle",
+    "build:watch": "onchange \"src/**/*\" --initial -- npm run build:dev",
+    "build:serve": "http-server dist",
+    "build:serve-tiles": "cd ../map-tile-server && npm start"
+  },
+  "author": "Bran van der Meer <bran.van.der.meer@protonmail.com>",
+  "license": "ISC",
+  "babel": {
+    "presets": [
+      "es2015",
+      "es2016",
+      "es2017",
+      "stage-2"
+    ]
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2016": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "babelify": "^8.0.0",
+    "browserify": "^16.2.2",
+    "exorcist": "^1.0.1",
+    "http-server": "^0.11.1",
+    "npm-run-all": "^4.1.3",
+    "onchange": "^4.0.0",
+    "postcss-cli": "^5.0.0",
+    "postcss-cssnext": "^3.1.0",
+    "postcss-csso": "^3.0.0",
+    "postcss-import": "^11.1.0",
+    "shx": "^0.2.2",
+    "uglify-js": "^3.3.24"
+  },
+  "dependencies": {
+    "ol": "^4.6.5"
+  }
+}
