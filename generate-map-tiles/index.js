@@ -2,28 +2,61 @@ const shell = require('shelljs')
 const gm = require('gm')
 
 /**
- * Create a new set of tiles
+ * App: generate map tiles
  */
-const createZoomlevel = (dir, source, tilesize, zoom) => {
-  const dest = `${dir}/${zoom}`
-  shell.mkdir('-p', dest)
-
-  const size = zoom === 0 ? tilesize : Math.pow(2, zoom) * tilesize
-
-  return resizeSource(source, dest, size).then(() =>
-    createTiles(`${dest}/zoom.png`, dest, tilesize)
-  )
+const app = argv => {
+  const { zoom, source, dest } = getArgs(argv)
+  Array(zoom)
+    .fill()
+    .reduce(
+      (chain, _, zoom) =>
+        chain.then(() => createZoomlevel(dest, source, 256, zoom)),
+      Promise.resolve()
+    )
 }
 
 /**
+ * Parse CLI arguments
+ */
+const getArgs = argv => {
+  const argc = argv.length
+  return {
+    zoom: Number(argv[argc - 3]),
+    source: argv[argc - 2],
+    dest: argv[argc - 1]
+  }
+}
+
+/**
+ * Create a new set of tiles
+ */
+const createZoomlevel = (dir, source, tilesize, zoom) => {
+  process.stdout.write(
+    `Creating zoom level ${zoom} (${Math.pow(Math.pow(2, zoom), 2)} tiles)... `
+  )
+
+  const dest = `${dir}/${zoom}`
+  shell.mkdir('-p', dest)
+
+  const size = Math.pow(2, zoom) * tilesize
+
+  return resizeSource(source, dest, size)
+    .then(source => createTiles(source, dest, tilesize))
+    .then(() => structureXyzTiles(dest, zoom))
+    .then(() => process.stdout.write('done\n'))
+}
+
+/**
+ * Resize source image to required zoomlevel
  * GraphicsMagick command:
  *  gm resize source.png 256x256 zoom.png
  */
 const resizeSource = (source, dest, size) => {
+  const file = `${dest}/zoom.png`
   return new Promise((resolve, reject) => {
     gm(source)
       .resize(size, size)
-      .write(`${dest}/zoom.png`, err => (err ? reject(err) : resolve()))
+      .write(file, err => (err ? reject(err) : resolve(file)))
   })
 }
 
@@ -42,10 +75,24 @@ const createTiles = (source, dest, size) => {
 }
 
 /**
- * Generate Map Tiles
+ * Rename & move tiles into XYZ folder structure:
+ *  dest/{zoom}/{x}/{y}
  */
-const c = n =>
-  createZoomlevel(`${__dirname}/dest`, `${__dirname}/test.png`, 256, n)
-c(0)
-  .then(() => c(1))
-  .then(() => c(2))
+const structureXyzTiles = (dest, zoom) => {
+  const dimension = Math.pow(2, zoom)
+
+  for (let y = 0; y < dimension; y++) {
+    for (let x = 0; x < dimension; x++) {
+      const src = `${dest}/${dimension * y + x}.png`
+      shell.mkdir('-p', `${dest}/${x}`)
+      shell.mv(src, `${dest}/${y}/${x}.png`)
+    }
+  }
+
+  return Promise.resolve()
+}
+
+/**
+ * Run app
+ */
+app(process.argv)
