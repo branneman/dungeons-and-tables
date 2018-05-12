@@ -76,7 +76,7 @@ const createTiles = (source, dest, size) => {
 
 /**
  * Rename & move tiles into XYZ folder structure:
- *  dest/{zoom}/{x}/{y}
+ *  dest/{zoom}/{y}/{x}
  */
 const structureXyzTiles = (dest, zoom) => {
   const dimension = Math.pow(2, zoom)
